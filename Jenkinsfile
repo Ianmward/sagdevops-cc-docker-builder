@@ -36,7 +36,7 @@ podTemplate(
         stage ('Docker') {
             container('docker') {
                 sh "docker login -u ${env.DOCKER_USR} -p ${env.DOCKER_PSW}"
-				sh 'curl -L https://github.com/docker/compose/releases/download/1.21.2/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose'
+				sh 'mv docker-compose-Linux-x86_64 /usr/local/bin/docker-compose'
 				sh 'chmod +x /usr/local/bin/docker-compose'
             }
         }
