@@ -36,8 +36,8 @@ podTemplate(
         stage ('Docker') {
             container('docker') {
                 sh "docker login -u ${env.DOCKER_USR} -p ${env.DOCKER_PSW}"
-				sh 'mv docker-compose-Linux-x86_64 /usr/local/bin/docker-compose'
-				sh 'chmod +x /usr/local/bin/docker-compose'
+				sh 'mv docker-compose-Linux-x86_64 /usr/bin/docker-compose'
+				sh 'chmod +x /usr/bin/docker-compose'
             }
         }
         stage("Build") {
