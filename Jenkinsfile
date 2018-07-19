@@ -1,16 +1,55 @@
-pipeline {
-    agent {
-        label 'docker'
-    }
-    environment {
-        COMPOSE_PROJECT_NAME = 'sagdevopsccdockerbuilder'
-        RELEASE = '10.1'
-        DOCKER = credentials('docker')
-        EMPOWER = credentials('empower')
-    } 
-    stages {
+podTemplate(
+    label: 'mypod', 
+    inheritFrom: 'default',
+    containers: [
+        containerTemplate(
+            name: 'docker', 
+            image: 'docker:18.02',
+            ttyEnabled: true,
+            command: 'cat'
+        )
+    ],
+	envVars: [
+		secretEnvVar(key: 'DOCKER_USR', secretName: 'docker-store-cred', secretKey: 'username'),
+		secretEnvVar(key: 'DOCKER_PSW', secretName: 'docker-store-cred', secretKey: 'password'),
+		secretEnvVar(key: 'NEXUS_USR', secretName: 'docker-nexus-cred', secretKey: 'username'),
+		secretEnvVar(key: 'NEXUS_PSW', secretName: 'docker-nexus-cred', secretKey: 'password'),
+		secretEnvVar(key: 'EMPOWER_USR', secretName: 'empower-cred', secretKey: 'username'),
+		secretEnvVar(key: 'EMPOWER_PSW', secretName: 'empower-cred', secretKey: 'password'),
+		envVar(key: 'COMPOSE_PROJECT_NAME', value: 'sagdevopsccdockerbuilder'),
+		envVar(key: 'RELEASE', value: '10.2'),
+	],
+    volumes: [
+        hostPathVolume(
+            hostPath: '/var/run/docker.sock',
+            mountPath: '/var/run/docker.sock'
+        )
+    ]
+) {
+    node('mypod') {
+        def commitId
+        stage ('Extract') {
+            checkout scm
+            commitId = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
+        }
+        def repository
+        stage ('Docker') {
+            container('docker') {
+                def store = "store.docker.com"
+                def image = "softwareag-apigateway-trial"
+                def version = "10.2"
+                sh "docker login -u ${env.DOCKER_USR} -p ${env.DOCKER_PSW}"
+                def registry = "docker.devopsinitiative.com"
+                sh "docker login -u ${env.NEXUS_USR} -p ${env.NEXUS_PSW} ${registry}"
+                repository = "${registry}/${image}"
+                sh "docker build -t ${repository}:${version} ."
+                sh "docker push ${repository}:${version}"
+            }
+        }
         stage("Build") {
-            steps {
+            container('docker') {
+				sh 'curl -L https://github.com/docker/compose/releases/download/1.21.2/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose'
+				sh 'chmod +x /usr/local/bin/docker-compose'
                 sh "docker login -u $DOCKER_USR -p $DOCKER_PSW"
                 sh 'envsubst < init-$RELEASE-dev.yaml > init.yaml && cat init.yaml'
                 sh 'docker-compose build simple'
@@ -20,7 +59,9 @@ pipeline {
             }
         }
         stage("Test") {
-            steps {
+            container('docker') {
+				sh 'curl -L https://github.com/docker/compose/releases/download/1.21.2/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose'
+				sh 'chmod +x /usr/local/bin/docker-compose'
                 sh 'docker-compose run --rm init'
                 sh 'docker-compose up -d managed'
                 sh 'docker-compose run --rm test'
