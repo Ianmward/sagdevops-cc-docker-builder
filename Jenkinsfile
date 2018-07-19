@@ -17,7 +17,7 @@ podTemplate(
 		secretEnvVar(key: 'EMPOWER_USR', secretName: 'empower-cred', secretKey: 'username'),
 		secretEnvVar(key: 'EMPOWER_PSW', secretName: 'empower-cred', secretKey: 'password'),
 		envVar(key: 'COMPOSE_PROJECT_NAME', value: 'sagdevopsccdockerbuilder'),
-		envVar(key: 'RELEASE', value: '10.2'),
+		envVar(key: 'RELEASE', value: '10.1'),
 	],
     volumes: [
         hostPathVolume(
@@ -35,22 +35,13 @@ podTemplate(
         def repository
         stage ('Docker') {
             container('docker') {
-                def store = "store.docker.com"
-                def image = "softwareag-apigateway-trial"
-                def version = "10.2"
                 sh "docker login -u ${env.DOCKER_USR} -p ${env.DOCKER_PSW}"
-                def registry = "docker.devopsinitiative.com"
-                sh "docker login -u ${env.NEXUS_USR} -p ${env.NEXUS_PSW} ${registry}"
-                repository = "${registry}/${image}"
-                sh "docker build -t ${repository}:${version} ."
-                sh "docker push ${repository}:${version}"
+				sh 'curl -L https://github.com/docker/compose/releases/download/1.21.2/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose'
+				sh 'chmod +x /usr/local/bin/docker-compose'
             }
         }
         stage("Build") {
             container('docker') {
-				sh 'curl -L https://github.com/docker/compose/releases/download/1.21.2/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose'
-				sh 'chmod +x /usr/local/bin/docker-compose'
-                sh "docker login -u $DOCKER_USR -p $DOCKER_PSW"
                 sh 'envsubst < init-$RELEASE-dev.yaml > init.yaml && cat init.yaml'
                 sh 'docker-compose build simple'
                 sh 'docker-compose build unmanaged'
@@ -60,8 +51,6 @@ podTemplate(
         }
         stage("Test") {
             container('docker') {
-				sh 'curl -L https://github.com/docker/compose/releases/download/1.21.2/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose'
-				sh 'chmod +x /usr/local/bin/docker-compose'
                 sh 'docker-compose run --rm init'
                 sh 'docker-compose up -d managed'
                 sh 'docker-compose run --rm test'
