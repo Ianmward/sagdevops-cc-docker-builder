@@ -36,16 +36,14 @@ podTemplate(
         stage ('Docker') {
             container('docker') {
                 sh "docker login -u ${env.DOCKER_USR} -p ${env.DOCKER_PSW}"
-				sh 'mv docker-compose-Linux-x86_64 /usr/bin/docker-compose'
-				sh 'chmod +x /usr/bin/docker-compose'
             }
         }
         stage("Build") {
             container('docker') {
                 sh 'cp init-$RELEASE-dev.yaml init.yaml && cat init.yaml'
-                sh 'docker-compose build simple'
-                sh 'docker-compose build unmanaged'
-                sh 'docker-compose build managed'
+                sh 'docker build -f Dockerfile.simple -t simple/msc:${env.RELEASE} --build-arg RELEASE=${env.RELEASE} .'
+                sh 'docker build -f Dockerfile.unmanaged -t unmanaged/msc:${env.RELEASE} --build-arg RELEASE=${env.RELEASE} .'
+                sh 'docker build -f Dockerfile.managed -t managed/msc:${env.RELEASE} --build-arg RELEASE=${env.RELEASE} .'
                 sh 'docker images | grep msc'
             }
         }
