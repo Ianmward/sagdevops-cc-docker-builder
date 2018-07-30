@@ -40,10 +40,8 @@ podTemplate(
         }
         stage("Build") {
             container('docker') {
-                sh 'cp init-${RELEASE}-dev.yaml init.yaml && cat init.yaml'
+                sh 'sed -e 's/\$EMPOWER_USR/'$EMPOWER_USR'/g' < init-${RELEASE}-dev.yaml | sed -e 's/\$EMPOWER_PSW/'$EMPOWER_PSW'/g' > init.yaml'
                 sh 'docker version'
-                sh 'ping -c 5 sdc.softwareag.com'
-                sh 'curl --user ${EMPOWER_USR}:${EMPOWER_PSW} http://sdc.softwareag.com/dataservewebM101/repository'
                 sh 'docker build -f Dockerfile.simple -t simple/msc:$RELEASE --build-arg RELEASE=$RELEASE .'
                 sh 'docker build -f Dockerfile.unmanaged -t unmanaged/msc:$RELEASE --build-arg RELEASE=$RELEASE .'
                 sh 'docker build -f Dockerfile.managed -t managed/msc:$RELEASE --build-arg RELEASE=$RELEASE .'
