@@ -40,7 +40,7 @@ podTemplate(
         }
         stage("Build") {
             container('docker') {
-                sh 'sed -e 's/\$EMPOWER_USR/'$EMPOWER_USR'/g' < init-${RELEASE}-dev.yaml | sed -e 's/\$EMPOWER_PSW/'$EMPOWER_PSW'/g' > init.yaml'
+                sh 'sed -e \'s/\$EMPOWER_USR/\'$EMPOWER_USR\'/g\' < init-${RELEASE}-dev.yaml | sed -e \'s/\$EMPOWER_PSW/\'$EMPOWER_PSW\'/g\' > init.yaml'
                 sh 'docker version'
                 sh 'docker build -f Dockerfile.simple -t simple/msc:$RELEASE --build-arg RELEASE=$RELEASE .'
                 sh 'docker build -f Dockerfile.unmanaged -t unmanaged/msc:$RELEASE --build-arg RELEASE=$RELEASE .'
