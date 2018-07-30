@@ -42,6 +42,8 @@ podTemplate(
             container('docker') {
                 sh 'cp init-${RELEASE}-dev.yaml init.yaml && cat init.yaml'
                 sh 'docker version'
+                sh 'ping -c 5 sdc.softwareag.com'
+                sh 'curl $EMPOWER_USERNAME:$EMPOWER_PASSWORD@sdc.softwareag.com/dataservewebM101/repository'
                 sh 'docker build -f Dockerfile.simple -t simple/msc:$RELEASE --build-arg RELEASE=$RELEASE .'
                 sh 'docker build -f Dockerfile.unmanaged -t unmanaged/msc:$RELEASE --build-arg RELEASE=$RELEASE .'
                 sh 'docker build -f Dockerfile.managed -t managed/msc:$RELEASE --build-arg RELEASE=$RELEASE .'
