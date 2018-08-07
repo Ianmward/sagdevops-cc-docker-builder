@@ -42,6 +42,8 @@ podTemplate(
             container('docker') {
                 sh 'sed -e \'s/\$EMPOWER_USR/\'$EMPOWER_USR\'/g\' < init-${RELEASE}-dev.yaml | sed -e \'s/\$EMPOWER_PSW/\'$EMPOWER_PSW\'/g\' > init.yaml'
                 sh 'docker version'
+		sh 'curl -u Administrator:manage --trace out http://100.67.41.81mirror-products-10.2/repository/sagProducts.xml'
+		sh 'cat out'
                 sh 'docker build -f Dockerfile.simple -t simple/msc:$RELEASE --build-arg RELEASE=$RELEASE .'
                 sh 'docker build -f Dockerfile.unmanaged -t unmanaged/msc:$RELEASE --build-arg RELEASE=$RELEASE .'
                 sh 'docker build -f Dockerfile.managed -t managed/msc:$RELEASE --build-arg RELEASE=$RELEASE .'
