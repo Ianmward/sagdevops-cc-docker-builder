@@ -6,7 +6,7 @@ repositories:
 
   product:
     products:           
-      location: http://cc-repo.devopsinitiative.com/mirror-products-10.2/repository/
+      location: http://100.67.41.81:8092/mirror-products-10.2/repository/
       username: Administrator
       password: manage
   fix:     
