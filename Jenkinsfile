@@ -35,7 +35,7 @@ podTemplate(
         def repository
         stage ('Docker') {
             container('docker') {
-		sh 'curl -u Administrator:manage --trace out http://100.67.41.81mirror-products-10.2/repository/sagProducts.xml'
+		sh 'curl -u Administrator:manage --trace out http://100.67.41.81:8092/mirror-products-10.2/repository/sagProducts.xml'
 		sh 'cat out'
                 sh "docker login -u ${env.DOCKER_USR} -p ${env.DOCKER_PSW}"
             }
