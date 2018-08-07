@@ -7,8 +7,8 @@ repositories:
   product:
     products:           
       location: http://100.67.41.81:8092/mirror-products-10.2/repository/
-      username: "$EMPOWER_USERNAME"
-      password: "$EMPOWER_PASSWORD"
+      username: "$EMPOWER_USR"
+      password: "$EMPOWER_PSW"
   fix:     
     fixes:
       location: http://sdc.softwareag.com/updates/prodRepo
