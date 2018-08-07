@@ -6,9 +6,9 @@ repositories:
 
   product:
     products:           
-      location: http://100.67.41.81:8092/mirror-products-10.2/repository/
-      username: "Administrator"
-      password: "manage"
+      location: http://cc-repo.devopsinitiative.com/mirror-products-10.2/repository/
+      username: Administrator
+      password: manage
   fix:     
     fixes:
       location: http://sdc.softwareag.com/updates/prodRepo
